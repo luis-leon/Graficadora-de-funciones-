@@ -1,0 +1,86 @@
+/*--------------- 1ra Area: Codigo de Usuario -----------------------*/
+//-------> importaciones, paquetes
+package Analizadores;
+import java_cup.runtime.Symbol;
+import java.util.LinkedList;
+
+//------> Codigo para el parser,variables, metodos
+parser code
+{:
+    public String resultado="";
+    public static LinkedList<TError> TablaES = new LinkedList<TError>(); 
+
+    //Metodo al que se llama automaticamente ante algun error sintactico
+    public void syntax_error(Symbol s)
+    {        
+        String lexema = s.value.toString();
+        int fila = s.right;
+        int columna = s.left;
+        
+        System.out.println("!!!!!!! Error Sintactico Recuperado !!!!!!!");
+        System.out.println("\t\tLexema: "+lexema);
+        System.out.println("\t\tFila: "+fila);
+        System.out.println("\t\tColumna: "+columna);
+
+        TError datos = new TError(lexema,fila,columna,"Error Sintactico","Caracter no esperado");
+        TablaES.add(datos);
+       
+        
+    }
+
+    //Metodo al que se llama en el momento en que ya no es posible una recuperacion de errores
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception
+    {        
+        String lexema = s.value.toString();
+        int fila = s.right;
+        int columna = s.left;
+        
+        System.out.println("!!!!!!! Error Sintactico, Panic Mode !!!!!!! ");
+        System.out.println("\t\tLexema: "+lexema);
+        System.out.println("\t\tFila: "+fila);
+        System.out.println("\t\tColumna: "+columna);
+
+        TError datos = new TError(lexema,fila,columna,"Error Sintactico","Caracter no esperado");
+        TablaES.add(datos);
+     
+    }
+:}
+
+//------> Codigo para las acciones gramaticales
+action code
+{:
+:}
+
+/*--------------- 2da Area: Declaraciones -----------------------*/
+//------> declaracion de terminales 
+terminal mas,menos,por,div,para,parc;
+terminal String num;
+
+//------> declaracion de no terminales
+non terminal String INICIO,E;
+
+//----> precedencia de menor a mayor 
+precedence left mas, menos;
+precedence left por, div;
+
+start with INICIO;
+
+/*--------------- 3ra Area: Reglas Semanticas -----------------------*/
+INICIO::=E:a {: resultado=a; :};
+2+5
+E::= E:a mas E:b {: int r =0;
+                    RESULT = String.valueOf(r); :}
+    |E:a menos E:b {: int val1= Integer.parseInt(a);
+                    int val2= Integer.parseInt(b);
+                    int r = val1-val2;
+                    RESULT = String.valueOf(r); :}
+    |E:a div E:b {: int val1= Integer.parseInt(a);
+                    int val2= Integer.parseInt(b);
+                    int r = val1/val2;
+                    RESULT = String.valueOf(r); :}
+    |E:a por E:b {: int val1= Integer.parseInt(a);
+                    int val2= Integer.parseInt(b);
+                    int r = val1*val2;
+                    RESULT = String.valueOf(r); :}
+    |para E:a {: RESULT = a; :} parc
+    |num:a {: RESULT = a; :};
